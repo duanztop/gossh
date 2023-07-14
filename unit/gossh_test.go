@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 17:21:14
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 18:11:25
+ * @LastEditTime: 2023-07-14 18:35:57
  * @FilePath: gossh_test.go
  * @Description: 单元测试相关代码
  *
@@ -44,6 +44,26 @@ func TestGetRemote1(t *testing.T) {
 //	@param t *testing.T
 func TestGetRemote2(t *testing.T) {
 	con, err := gossh.Remote2("root", "/root/.ssh/id_rsa", "xxx.xxx.xxx.xxx:22")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer con.Close()
+	s, err2 := con.ExecShell(context.Background(), "df -h")
+	if err2 != nil {
+		t.Error(err2)
+		return
+	}
+	t.Logf(s)
+}
+
+// TestGetRemoteDefault 测试获取远程连接默认方式，并执行shell
+//
+//	@author duanzt
+//	@date 2023-07-14 06:29:04
+//	@param t *testing.T
+func TestGetRemoteDefault(t *testing.T) {
+	con, err := gossh.RemoteDefault("xxx.xxx.xxx.xxx:22")
 	if err != nil {
 		t.Error(err)
 		return
