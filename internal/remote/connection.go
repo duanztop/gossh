@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 10:27:51
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 17:18:03
+ * @LastEditTime: 2023-07-14 18:23:56
  * @FilePath: connection.go
  * @Description: 远程ssh连接
  *
@@ -12,13 +12,29 @@ package remote
 
 import (
 	"context"
+	"embed"
 	"io"
 	"io/ioutil"
 	"net"
 	"time"
 
 	"github.com/duanztop/gossh/internal"
+	"github.com/duanztop/gossh/internal/tools"
 	"golang.org/x/crypto/ssh"
+)
+
+const (
+
+	// defaultUsername 默认用户名
+	defaultUsername = "root"
+
+	// defaultPrivateKey 默认私钥存放路径
+	defaultPrivateKey = ".ssh/id_rsa"
+)
+
+var (
+	//go:embed .ssh
+	multi embed.FS
 )
 
 type connection struct {
@@ -230,6 +246,29 @@ func NewConnection2(username, privateKey, addr string) (internal.IConnection, er
 	}
 	auth = append(auth, ssh.PublicKeys(pk))
 	return newConnectionBasic(auth, username, addr)
+}
+
+// NewConnectionDefault 使用默认方式新建连接（默认用户名：root，默认使用私钥连接，私钥地址为当前目录下的.ssh/id_rsa文件）
+//
+//	@author duanzt
+//	@date 2023-07-14 06:16:26
+//	@param addr string ssh连接地址
+//	@return internal.IConnection ssh连接
+//	@return error 连接异常时返回
+func NewConnectionDefault(addr string) (internal.IConnection, error) {
+	auth := []ssh.AuthMethod{}
+	f, _ := multi.Open(defaultPrivateKey)
+	defer f.Close()
+	data, err := tools.FileTools.ReadFile(f)
+	if err != nil {
+		return nil, err
+	}
+	pk, err := ssh.ParsePrivateKey(data)
+	if err != nil {
+		return nil, err
+	}
+	auth = append(auth, ssh.PublicKeys(pk))
+	return newConnectionBasic(auth, defaultUsername, addr)
 }
 
 // newConnectionBasic 新建连接（默认方法，auth需要前置组装）
