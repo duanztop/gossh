@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 10:27:45
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 17:14:25
+ * @LastEditTime: 2023-07-14 17:56:13
  * @FilePath: connection.go
  * @Description: 本地连接（逻辑上，并没有建立任何连接）
  *

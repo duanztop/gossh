@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 10:27:28
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 10:48:36
+ * @LastEditTime: 2023-07-14 18:07:33
  * @FilePath: session.go
  * @Description: 本地session
  *
@@ -48,7 +48,7 @@ func (s *session) ExecOutput(shell string, logFunc func(scanner *bufio.Scanner))
 	if runtime.GOOS == "windows" {
 		sess = exec.CommandContext(s.ctx, "cmd", "/c", shell)
 	}
-	if logFunc != nil {
+	if logFunc == nil {
 		sess.Stdout = &stdout
 	}
 	sess.Stderr = &stdout
