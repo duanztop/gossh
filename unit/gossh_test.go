@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 17:21:14
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 18:35:57
+ * @LastEditTime: 2023-07-17 12:27:02
  * @FilePath: gossh_test.go
  * @Description: 单元测试相关代码
  *
@@ -91,4 +91,19 @@ func TestGetLocal(t *testing.T) {
 		return
 	}
 	t.Logf(s)
+}
+
+func TestLocalFile(t *testing.T) {
+	src := "./Mario.jpeg"
+	dest := "./Mario_copy.jpeg"
+	mode := "0755"
+	l := gossh.Local()
+	defer l.Close()
+	err := l.CopyFileRTL(src, dest, mode)
+	if err != nil {
+		t.Error("CopyFileRTL failed")
+	} else {
+		t.Log("CopyFileRTL succeeded")
+	}
+	// dataChan, err := l.CopyFileRTLMon(src, dest, mode)
 }

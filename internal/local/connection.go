@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 10:27:45
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 17:56:13
+ * @LastEditTime: 2023-07-17 13:59:59
  * @FilePath: connection.go
  * @Description: 本地连接（逻辑上，并没有建立任何连接）
  *
@@ -13,9 +13,14 @@ package local
 import (
 	"context"
 	"io"
+	"os"
+	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/duanztop/gossh/internal"
+	"github.com/duanztop/gossh/internal/tools"
 )
 
 const (
@@ -80,7 +85,20 @@ func (c *connection) ExecShell(cxt context.Context, shell string) (string, error
 //	@param mode string 文件权限
 //	@return error ssh异常时返回
 func (c *connection) CopyFileITR(src io.Reader, dest string, mode string) error {
-	panic("not implemented") // TODO: Implement
+	modeInt, err := strconv.ParseInt(mode, 8, 32)
+	if err != nil {
+		return err
+	}
+	if _, err = tools.FileTools.CreateFile(dest); err != nil {
+		return err
+	}
+	dstFile, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE, os.FileMode(modeInt))
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+	_, err = io.Copy(dstFile, src)
+	return err
 }
 
 // CopyFileITRMon 拷贝文件流到远端（监控远端目标文件大小）
@@ -92,8 +110,45 @@ func (c *connection) CopyFileITR(src io.Reader, dest string, mode string) error 
 //	@param mode string 文件权限
 //	@param destSizeChan chan int64 返回远端目标文件大小，单位：byte
 //	@return error ssh异常时返回
-func (c *connection) CopyFileITRMon(src io.Reader, dest string, mode string, destSizeChan chan int64) error {
-	panic("not implemented") // TODO: Implement
+func (c *connection) CopyFileITRMon(src io.Reader, dest string, mode string, destSizeChan chan int64) (err error) {
+	modeInt, err := strconv.ParseInt(mode, 8, 32)
+	if err != nil {
+		return err
+	}
+
+	if _, err = tools.FileTools.CreateFile(dest); err != nil {
+		return err
+	}
+
+	dstFile, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE, os.FileMode(modeInt))
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+	waitGroup := &sync.WaitGroup{}
+	waitGroup.Add(1)
+	go func() {
+		_, err = io.Copy(dstFile, src)
+		waitGroup.Done()
+	}()
+
+	ticker := time.NewTicker(time.Millisecond * 100)
+	defer ticker.Stop()
+	go func() {
+		defer func() {
+			_ = recover()
+		}()
+		for range ticker.C {
+			stat, _ := dstFile.Stat()
+			destSizeChan <- stat.Size()
+		}
+	}()
+
+	waitGroup.Wait()
+	stat, _ := dstFile.Stat()
+	destSizeChan <- stat.Size()
+	close(destSizeChan)
+	return err
 }
 
 // CopyFileLTR 拷贝本地文件到远端
@@ -105,7 +160,11 @@ func (c *connection) CopyFileITRMon(src io.Reader, dest string, mode string, des
 //	@param mode string 文件权限
 //	@return error ssh异常时返回
 func (c *connection) CopyFileLTR(src string, dest string, mode string) error {
-	panic("not implemented") // TODO: Implement
+	file, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	return c.CopyFileITR(file, dest, mode)
 }
 
 // CopyFileLTRMon 拷贝本地文件到远端（监控远端目标文件大小）
@@ -117,8 +176,12 @@ func (c *connection) CopyFileLTR(src string, dest string, mode string) error {
 //	@param mode string 文件权限
 //	@param destSizeChan chan int64 返回远端目标文件大小，单位：byte
 //	@return error ssh异常时返回
-func (c *connection) CopyFileLTRMon(src string, dest string, mode string, destSizeChan chan int64) error {
-	panic("not implemented") // TODO: Implement
+func (c *connection) CopyFileLTRMon(src string, dest string, mode string, destSizeChan chan int64) (err error) {
+	file, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	return c.CopyFileITRMon(file, dest, mode, destSizeChan)
 }
 
 // CopyFileRTL 拷贝远端文件到本地
@@ -130,7 +193,7 @@ func (c *connection) CopyFileLTRMon(src string, dest string, mode string, destSi
 //	@param mode string 文件权限
 //	@return error ssh异常时返回
 func (c *connection) CopyFileRTL(src string, dest string, mode string) error {
-	panic("not implemented") // TODO: Implement
+	return c.CopyFileLTR(src, dest, mode)
 }
 
 // CopyFileRTLMon 拷贝远端文件到本地（监控本地目标文件大小）
@@ -142,8 +205,8 @@ func (c *connection) CopyFileRTL(src string, dest string, mode string) error {
 //	@param mode string 文件权限
 //	@param destSizeChan chan int64 返回本地目标文件大小，单位：byte
 //	@return error ssh异常时返回
-func (c *connection) CopyFileRTLMon(src string, dest string, mode string, destSizeChan chan int64) error {
-	panic("not implemented") // TODO: Implement
+func (c *connection) CopyFileRTLMon(src string, dest string, mode string, destSizeChan chan int64) (err error) {
+	return c.CopyFileLTRMon(src, dest, mode, destSizeChan)
 }
 
 // GetAddr 获取ssh连接地址（例127.0.0.1:22）

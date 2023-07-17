@@ -3,7 +3,10 @@ golang实现的一个ssh远程执行小工具
 
 - 依赖：
   ```
-  golang.org/x/crypto v0.11.0
+  require (
+    github.com/pkg/sftp v1.13.5 // sftp连接工具包
+    golang.org/x/crypto v0.11.0 // ssh连接工具包
+  )
   ```
 
 # 使用示例

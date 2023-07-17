@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 09:41:38
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 10:26:24
+ * @LastEditTime: 2023-07-17 13:10:00
  * @FilePath: iconnection.go
  * @Description: 定义connection interface
  *
@@ -59,7 +59,7 @@ type IConnection interface {
 	//  @param mode string 文件权限
 	//  @param destSizeChan chan int64 返回远端目标文件大小，单位：byte
 	//  @return error ssh异常时返回
-	CopyFileITRMon(src io.Reader, dest, mode string, destSizeChan chan int64) error
+	CopyFileITRMon(src io.Reader, dest, mode string, destSizeChan chan int64) (err error)
 
 	// CopyFileLTR 拷贝本地文件到远端
 	//  @author duanzt
@@ -78,7 +78,7 @@ type IConnection interface {
 	//  @param mode string 文件权限
 	//  @param destSizeChan chan int64 返回远端目标文件大小，单位：byte
 	//  @return error ssh异常时返回
-	CopyFileLTRMon(src, dest, mode string, destSizeChan chan int64) error
+	CopyFileLTRMon(src, dest, mode string, destSizeChan chan int64) (err error)
 
 	// CopyFileRTL 拷贝远端文件到本地
 	//  @author duanzt
@@ -97,7 +97,7 @@ type IConnection interface {
 	//  @param mode string 文件权限
 	//  @param destSizeChan chan int64 返回本地目标文件大小，单位：byte
 	//  @return error ssh异常时返回
-	CopyFileRTLMon(src string, dest, mode string, destSizeChan chan int64) error
+	CopyFileRTLMon(src string, dest, mode string, destSizeChan chan int64) (err error)
 
 	// GetAddr 获取ssh连接地址（例127.0.0.1:22）
 	//  @author duanzt
