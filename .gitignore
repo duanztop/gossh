@@ -22,3 +22,5 @@ go.work
 
 unit/example/localfile/testFile
 unit/example/localfile/target
+unit/example/remotefile/testFile
+unit/example/remotefile/target

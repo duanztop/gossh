@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-17 12:30:24
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-17 14:14:57
+ * @LastEditTime: 2023-07-17 16:07:59
  * @FilePath: main.go
  * @Description: 本地连接操作文件的使用示例
  *
@@ -24,8 +24,8 @@ func main() {
 	// 由于本地ssh文件的操作底层都是调用的CopyFileITR/CopyFileITRMon。所以我们仅测试一种场景：本地拷贝到目标
 	// 大文件可以使用testFile进行测试（通过dd if=/dev/zero of=testFile bs=1G count=1创建）
 	l := gossh.Local()
-	src := "/Users/duanzt/code/golang/gossh/unit/example/localfile/testFile"
-	dest := "/Users/duanzt/code/golang/gossh/unit/example/localfile/target/testFile"
+	src := "./testFile"
+	dest := "./target/testFile"
 	os.Remove(dest)
 	mode := "0755"
 	file, err := os.Open(src)
