@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 10:26:52
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 18:25:48
+ * @LastEditTime: 2023-07-17 18:54:52
  * @FilePath: gossh.go
  * @Description: 暴露文件，提供使用的方法
  *
@@ -11,9 +11,12 @@
 package gossh
 
 import (
+	"strings"
+
 	"github.com/duanztop/gossh/internal"
 	"github.com/duanztop/gossh/internal/local"
 	"github.com/duanztop/gossh/internal/remote"
+	"github.com/duanztop/gossh/internal/tools"
 )
 
 // Remote1 获取远程ssh连接（使用username+password验证方式）
@@ -26,8 +29,15 @@ import (
 //	@return internal.IConnection ssh连接
 //	@return error 连接异常时返回
 func Remote1(username, password, addr string) (internal.IConnection, error) {
-	// TODO:判断addr，如果是ip增加默认后缀:22
-	// TODO:判断ip，如果是本机ip（或127.0.0.1，或localhost），则直接使用本地ssh连接，降低远程ssh连接损耗
+	// 判断addr，如果是ip增加默认后缀:22
+	rightAddr, err := tools.SshAddrTools.SetRightAddr(addr)
+	if err != nil {
+		return nil, err
+	}
+	// 判断ip，如果是本机ip（或127.0.0.1，或localhost），则直接使用本地ssh连接，降低远程ssh连接损耗
+	if tools.IpTools.CheckIpIsLocal(strings.Split(rightAddr, tools.SshAddrTools.GetAddrSplit())[0]) {
+		return local.NewConnection2(rightAddr), nil
+	}
 
 	return remote.NewConnection1(username, password, addr)
 }
@@ -42,8 +52,15 @@ func Remote1(username, password, addr string) (internal.IConnection, error) {
 //	@return internal.IConnection ssh连接
 //	@return error 连接异常时返回
 func Remote2(username, privateKey, addr string) (internal.IConnection, error) {
-	// TODO:判断addr，如果是ip增加默认后缀:22
-	// TODO:判断ip，如果是本机ip（或127.0.0.1，或localhost），则直接使用本地ssh连接，降低远程ssh连接损耗
+	// 判断addr，如果是ip增加默认后缀:22
+	rightAddr, err := tools.SshAddrTools.SetRightAddr(addr)
+	if err != nil {
+		return nil, err
+	}
+	// 判断ip，如果是本机ip（或127.0.0.1，或localhost），则直接使用本地ssh连接，降低远程ssh连接损耗
+	if tools.IpTools.CheckIpIsLocal(strings.Split(rightAddr, tools.SshAddrTools.GetAddrSplit())[0]) {
+		return local.NewConnection2(rightAddr), nil
+	}
 	return remote.NewConnection2(username, privateKey, addr)
 }
 
@@ -57,8 +74,15 @@ func Remote2(username, privateKey, addr string) (internal.IConnection, error) {
 //	@return internal.IConnection
 //	@return error
 func RemoteDefault(addr string) (internal.IConnection, error) {
-	// TODO:判断addr，如果是ip增加默认后缀:22
-	// TODO:判断ip，如果是本机ip（或127.0.0.1，或localhost），则直接使用本地ssh连接，降低远程ssh连接损耗
+	// 判断addr，如果是ip增加默认后缀:22
+	rightAddr, err := tools.SshAddrTools.SetRightAddr(addr)
+	if err != nil {
+		return nil, err
+	}
+	// 判断ip，如果是本机ip（或127.0.0.1，或localhost），则直接使用本地ssh连接，降低远程ssh连接损耗
+	if tools.IpTools.CheckIpIsLocal(strings.Split(rightAddr, tools.SshAddrTools.GetAddrSplit())[0]) {
+		return local.NewConnection2(rightAddr), nil
+	}
 	return remote.NewConnectionDefault(addr)
 }
 

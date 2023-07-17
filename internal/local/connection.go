@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 10:27:45
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-17 13:59:59
+ * @LastEditTime: 2023-07-17 18:53:14
  * @FilePath: connection.go
  * @Description: 本地连接（逻辑上，并没有建立任何连接）
  *
@@ -234,4 +234,14 @@ func (c *connection) GetIp() string {
 //	@return internal.IConnection
 func NewConnection() internal.IConnection {
 	return &connection{addr: defaultAddress}
+}
+
+// NewConnection2 新建一个本地ssh连接对象(自定义ssh连接地址)
+//
+//	@author duanzt
+//	@date 2023-07-17 06:53:15
+//	@param addr string ssh连接地址
+//	@return internal.IConnection ssh连接
+func NewConnection2(addr string) internal.IConnection {
+	return &connection{addr: addr}
 }
