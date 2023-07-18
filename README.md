@@ -82,3 +82,6 @@ golang实现的一个ssh远程执行小工具
 5. 文件操作
     - [本地文件操作](./unit/example/localfile/main.go)
     - [远程文件操作](./unit/example/remotefile/main.go)
+
+# TODO
+- [ ] 增加耗时监控

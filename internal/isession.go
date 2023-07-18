@@ -2,7 +2,7 @@
  * @Author: duanzt
  * @Date: 2023-07-14 09:50:38
  * @LastEditors: duanzt
- * @LastEditTime: 2023-07-14 11:13:37
+ * @LastEditTime: 2023-07-18 08:27:02
  * @FilePath: isession.go
  * @Description: 定义session interface
  *
@@ -14,7 +14,7 @@ import (
 	"bufio"
 )
 
-// ISession sesion interface
+// ISession session interface
 type ISession interface {
 
 	// Exec 执行shell
@@ -35,13 +35,13 @@ type ISession interface {
 	// Wait 等待执行
 	//  @author duanzt
 	//  @date 2023-07-14 10:12:51
-	//  @return error 异常时返回
+	//  @return error 执行异常时返回
 	Wait() error
 
 	// Close 关闭ssh连接
 	//  @author duanzt
 	//  @date 2023-07-14 10:13:28
-	//  @return error
+	//  @return error 执行异常时返回
 	Close() error
 
 	// Output Exec执行完后调用，获取执行shell输出结果
